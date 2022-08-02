@@ -15,10 +15,15 @@
 import os
 import pathlib
 import sys
-from typing import Set
+from typing import Dict, Set
 
 import click
 import pydub
+import pydub.exceptions
+import pydub.playback
+
+
+DEFAULT_SOUND: str = 'quack'
 
 
 def show_version(ctx, param, value):
@@ -33,9 +38,37 @@ def show_version(ctx, param, value):
     ctx.exit()
 
 
+def load_base_sounds() -> Dict[str, pydub.AudioSegment]:
+    """Loads all base sounds.
+
+    :return:    Dictionary of sound name to sound audio segment.
+    """
+
+    res = {}
+
+    paths = search_paths()
+    for path in paths:
+        for dirpath, dirnames, filenames in os.walk(path):
+            for filename in filenames:
+                sound_file = os.path.join(dirpath, filename)
+                try:
+                    sound = pydub.AudioSegment.from_file(sound_file)
+                    sound_name = pathlib.Path(dirpath) / pathlib.Path(filename).stem
+                    sound_name = pathlib.Path(sound_name).relative_to(path)
+                    res[str(sound_name)] = sound
+
+                except pydub.exceptions.CouldntDecodeError:
+                    sys.stderr.write(f"Failed to load: {sound_file}.")
+
+    return res
+
+
 @click.command(context_settings={'help_option_names': ['-h', '--help']})
+@click.option('--list-only', '-l', is_flag=True, help='Only list current found base sounds.')
+@click.option('--sound', '-s', type=str, default=DEFAULT_SOUND, show_default=True,
+              help='Default base sound to load.')
 @click.option('--version', '-v', is_flag=True, help='Show version and exit.')
-def main(version=False) -> None:
+def main(list_only=False, sound='', version=False) -> None:
     """Keyquack - annoy your colleagues while you type.
 
     Launch program, turn on your loudspeakers while in an open space,
@@ -46,7 +79,19 @@ def main(version=False) -> None:
         show_version()
         sys.exit(0)
 
-    print('blah')
+    base_sounds = load_base_sounds()
+    if list_only:
+        print('Available sounds:')
+        for sound_name in base_sounds:
+            print(sound_name)
+
+    if sound not in base_sounds:
+        sys.stderr.write(f"Cannot find sound '{sound}' in base sounds.\n")
+        sys.stderr.write('List available sounds with --list-only option.\n')
+        sys.stderr.write('Please specify alternative with --sound option.\n')
+        sys.exit(1)
+
+    pydub.playback.play(base_sounds[sound])
 
 
 def search_paths() -> Set[str]:
