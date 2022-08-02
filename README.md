@@ -5,7 +5,7 @@ Annoy your colleagues.
 This simple program makes stupid annoying sounds when you type.
 
 Sounds are picked from https://archive.org/.
-
+* Quack sound: https://archive.org/details/quacksoundeffect
 
 
 ## Notable guidelines
@@ -20,4 +20,3 @@ Sounds are picked from https://archive.org/.
 
 (C) Copyright 2022  
 Oliver Maurhart, headcode.space, https://headcode.space
-

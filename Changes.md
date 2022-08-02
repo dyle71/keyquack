@@ -8,4 +8,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Initial release.
 
 
-[Unreleased]: https://gitlab.keequant.com/quantum-post-processing/key-distillery
+[Unreleased]: https://www.github.com/dyle71/keyquack

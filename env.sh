@@ -12,8 +12,8 @@
 #       or
 #           $ . ./env.sh
 #
-# (C) Copyright 2021-2022, see the 'LICENSE' file in the project root.
-# KEEQuant GmbH, https://www.keequant.com
+# (C) Copyright 2022, see the 'LICENSE' file in the project root.
+# Oliver Maurhart, headcode.space, https://headcode.space
 # ------------------------------------------------------------
 
 ( return 0 2>/dev/null ) && SOURCED="yes" || SOURCED="no"
