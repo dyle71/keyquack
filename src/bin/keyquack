@@ -1,0 +1,18 @@
+#!/bin/sh
+
+# ------------------------------------------------------------
+# keyquack
+#
+# keyquack startup shell wrapper.
+#
+# (C) Copyright 2022, see the 'LICENSE' file in the project root.
+# Oliver Maurhart, headcode.space, https://headcode.space
+# ------------------------------------------------------------
+
+KEYQUACK_PACKAGE_PATH=`python3 -c 'import pathlib; import keyquack; print(str(pathlib.Path(keyquack.__file__).parents[1]))'`
+if [ -z "KEYQUACK_PACKAGE_PATH" ]; then
+    echo "Cannot find keyquack package. Is it installed?"
+    exit 1
+fi
+
+/usr/bin/env python3 -m keyquack $*
