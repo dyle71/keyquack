@@ -9,8 +9,13 @@ im Büro machen? Der kleine Raum in der Mitte wäre da besser geeignet."
 
 This simple program makes stupid annoying sounds when you type.
 
-Sounds are picked from https://archive.org/.
-* Quack sound: https://archive.org/details/quacksoundeffect
+Sounds are picked from
+* Quack sound: https://archive.org/
+* Moo sound: https://www.FesliyanStudios.com
+* Boing sound: - I forgot. Sorry.
+
+You may drop sound files in the `share/keyquack` folder. The tool will try to load
+and work with it.
 
 
 ## Prerequisite
@@ -77,7 +82,9 @@ necessary packages as stated in the requirements, then
 ```bash
 $ keyquack
 ```
-... and annoy your colleagues.
+somehwere in the background ... and annoy your colleagues.
+
+You may open up and editor (e.g. Winword?) in front and work there.
 
 
 ### More fun
