@@ -14,7 +14,6 @@
 
 import os
 import pathlib
-import subprocess
 import sys
 import tempfile
 from typing import Dict, Optional, Set, Tuple
@@ -24,6 +23,7 @@ import pydub
 import pydub.exceptions
 import pydub.playback
 import pydub.utils
+import pynput
 
 
 DEFAULT_SOUND: str = 'quack'
@@ -86,7 +86,13 @@ def main(list_only=False, sound='', version=False) -> None:
         sys.exit(1)
 
     with tempfile.TemporaryDirectory() as temp_dir:
-        play(sound=sound, sound_db=base_sounds, temp_dir=temp_dir)
+        with pynput.keyboard.Listener(on_press=on_key_press) as listener:
+            listener.join()
+
+
+def on_key_press(key: pynput.keyboard.KeyCode) -> None:
+    """A keyboard key has been pressed."""
+    print(f"You pressed {key=}.")
 
 
 def play(sound: str, sound_db: SoundDB, temp_dir: str) -> None:
@@ -103,7 +109,8 @@ def play(sound: str, sound_db: SoundDB, temp_dir: str) -> None:
         save_wav(sound=sound, sound_db=sound_db, temp_dir=temp_dir)
 
     player = pydub.utils.get_player_name()
-    subprocess.call([player, "-nodisp", "-autoexit", "-hide_banner", sound_db[sound][1]])
+    cmd = [player, "-nodisp", "-autoexit", "-hide_banner", sound_db[sound][1]]
+    os.spawnvp(os.P_NOWAIT, cmd[0], cmd)
 
 
 def save_wav(sound: str, sound_db: SoundDB, temp_dir: str) -> None:
@@ -148,7 +155,7 @@ def search_paths() -> Set[str]:
 
 
 def show_version():
-    """Show proram version and exit."""
+    """Show program version and exit."""
     import keyquack.__about__
     click.echo(f"{keyquack.__about__.__title__} V{keyquack.__about__.__version__}")
     click.echo(f"{keyquack.__about__.__summary__}\n")
