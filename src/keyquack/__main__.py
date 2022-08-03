@@ -21,6 +21,7 @@ import tempfile
 from typing import Dict, Optional, Set, Tuple
 
 import click
+import numpy as np
 import pydub
 import pydub.exceptions
 import pydub.playback
@@ -28,9 +29,57 @@ import pydub.utils
 import pynput
 
 
-DEFAULT_SOUND: str = 'quack'
-
 SoundDB = Dict[str, Tuple[pydub.AudioSegment, Optional[str]]]
+
+DEFAULT_SOUND: str = 'quack'
+LISTENING_KEYS = [
+
+    pynput.keyboard.KeyCode(char='a'), pynput.keyboard.KeyCode(char='b'), pynput.keyboard.KeyCode(char='c'),
+    pynput.keyboard.KeyCode(char='d'), pynput.keyboard.KeyCode(char='e'), pynput.keyboard.KeyCode(char='f'),
+    pynput.keyboard.KeyCode(char='g'), pynput.keyboard.KeyCode(char='h'), pynput.keyboard.KeyCode(char='i'),
+    pynput.keyboard.KeyCode(char='j'), pynput.keyboard.KeyCode(char='k'), pynput.keyboard.KeyCode(char='l'),
+    pynput.keyboard.KeyCode(char='m'), pynput.keyboard.KeyCode(char='n'), pynput.keyboard.KeyCode(char='o'),
+    pynput.keyboard.KeyCode(char='p'), pynput.keyboard.KeyCode(char='q'), pynput.keyboard.KeyCode(char='r'),
+    pynput.keyboard.KeyCode(char='s'), pynput.keyboard.KeyCode(char='t'), pynput.keyboard.KeyCode(char='u'),
+    pynput.keyboard.KeyCode(char='v'), pynput.keyboard.KeyCode(char='w'), pynput.keyboard.KeyCode(char='x'),
+    pynput.keyboard.KeyCode(char='y'), pynput.keyboard.KeyCode(char='z'),
+
+    pynput.keyboard.KeyCode(char='A'), pynput.keyboard.KeyCode(char='B'), pynput.keyboard.KeyCode(char='C'),
+    pynput.keyboard.KeyCode(char='D'), pynput.keyboard.KeyCode(char='E'), pynput.keyboard.KeyCode(char='F'),
+    pynput.keyboard.KeyCode(char='G'), pynput.keyboard.KeyCode(char='H'), pynput.keyboard.KeyCode(char='I'),
+    pynput.keyboard.KeyCode(char='J'), pynput.keyboard.KeyCode(char='K'), pynput.keyboard.KeyCode(char='L'),
+    pynput.keyboard.KeyCode(char='M'), pynput.keyboard.KeyCode(char='N'), pynput.keyboard.KeyCode(char='O'),
+    pynput.keyboard.KeyCode(char='P'), pynput.keyboard.KeyCode(char='Q'), pynput.keyboard.KeyCode(char='R'),
+    pynput.keyboard.KeyCode(char='S'), pynput.keyboard.KeyCode(char='T'), pynput.keyboard.KeyCode(char='U'),
+    pynput.keyboard.KeyCode(char='V'), pynput.keyboard.KeyCode(char='W'), pynput.keyboard.KeyCode(char='X'),
+    pynput.keyboard.KeyCode(char='Y'), pynput.keyboard.KeyCode(char='Z'),
+
+    pynput.keyboard.KeyCode(char='0'), pynput.keyboard.KeyCode(char='1'), pynput.keyboard.KeyCode(char='2'),
+    pynput.keyboard.KeyCode(char='3'), pynput.keyboard.KeyCode(char='4'), pynput.keyboard.KeyCode(char='5'),
+    pynput.keyboard.KeyCode(char='6'), pynput.keyboard.KeyCode(char='7'), pynput.keyboard.KeyCode(char='8'),
+    pynput.keyboard.KeyCode(char='9')
+]
+
+
+def distribute_sounds(sound: str, sound_db: SoundDB, temp_dir: str) -> None:
+    """Generates sound with different frequencies.
+    
+    :param sound:       The basic sound.
+    :param sound_db:    The sound database.
+    :param temp_dir:    The temporary folder to hold the sound files.
+    """
+    speed_ups = np.linspace(0.70, 2.0, num=len(LISTENING_KEYS))
+    for i, speed_up in enumerate(speed_ups):
+
+        key = LISTENING_KEYS[i]
+        if type(key) is pynput.keyboard.KeyCode:
+            quack = f"{sound}_{key.char}"
+        else:
+            quack = f"{sound}_{key!s}"
+
+        quack_sound = speed_change(sound_db[sound][0], speed_up)
+        sound_db[quack] = (quack_sound, None)
+        save_wav(sound=quack, sound_db=sound_db, temp_dir=temp_dir)
 
 
 def load_base_sounds() -> SoundDB:
@@ -60,10 +109,11 @@ def load_base_sounds() -> SoundDB:
 
 @click.command(context_settings={'help_option_names': ['-h', '--help']})
 @click.option('--list-only', '-l', is_flag=True, help='Only list current found base sounds.')
+@click.option('--distribute', '-d', is_flag=True, help='Distribute frequencies.')
 @click.option('--sound', '-s', type=str, default=DEFAULT_SOUND, show_default=True,
               help='Default base sound to load.')
 @click.option('--version', '-v', is_flag=True, help='Show version and exit.')
-def main(list_only=False, sound='', version=False) -> None:
+def main(list_only=False, distribute=False, sound='', version=False) -> None:
     """Keyquack - annoy your colleagues while you type.
 
     Launch program, turn on your loudspeakers while in an open space,
@@ -79,9 +129,18 @@ def main(list_only=False, sound='', version=False) -> None:
 
         def on_key_press(self, key: pynput.keyboard.KeyCode) -> None:
             """A keyboard key has been pressed."""
-            quack = f"{self.default_sound}_{key!s}"
+
+            if key not in LISTENING_KEYS:
+                return
+
+            if type(key) is pynput.keyboard.KeyCode:
+                quack = f"{self.default_sound}_{key.char}"
+            else:
+                quack = f"{self.default_sound}_{key!s}"
+
             if quack not in self.sound_db:
                 quack = self.default_sound
+
             play(sound=quack, sound_db=self.sound_db, temp_dir=self.temp_dir)
 
         def run(self):
@@ -106,6 +165,10 @@ def main(list_only=False, sound='', version=False) -> None:
         sys.exit(1)
 
     with tempfile.TemporaryDirectory() as temp_dir:
+
+        if distribute:
+            distribute_sounds(sound=sound, sound_db=base_sounds, temp_dir=temp_dir)
+
         quacker = Quacker(default_sound=sound, sound_db=base_sounds, temp_dir=temp_dir)
         quacker.run()
 
