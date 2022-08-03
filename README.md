@@ -2,6 +2,11 @@
 
 Annoy your colleagues.
 
+Triggered on a comment to mine:
+
+(German) "Kannst du in Zukunft solche Meetings wo du das Meeting leitest bitte nicht 
+im Büro machen? Der kleine Raum in der Mitte wäre da besser geeignet."
+
 This simple program makes stupid annoying sounds when you type.
 
 Sounds are picked from https://archive.org/.

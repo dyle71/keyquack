@@ -15,6 +15,7 @@
 import dataclasses
 import os
 import pathlib
+import subprocess
 import sys
 import tempfile
 from typing import Dict, Optional, Set, Tuple
@@ -124,7 +125,7 @@ def play(sound: str, sound_db: SoundDB, temp_dir: str) -> None:
 
     player = pydub.utils.get_player_name()
     cmd = [player, "-nodisp", "-autoexit", "-hide_banner", sound_db[sound][1]]
-    os.spawnvp(os.P_NOWAIT, cmd[0], cmd)
+    subprocess.Popen(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
 
 def save_wav(sound: str, sound_db: SoundDB, temp_dir: str) -> None:
