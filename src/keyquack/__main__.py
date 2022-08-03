@@ -12,6 +12,7 @@
 
 """This is the keyquack package start script."""
 
+import dataclasses
 import os
 import pathlib
 import sys
@@ -68,6 +69,24 @@ def main(list_only=False, sound='', version=False) -> None:
     start typing and annoy everyone.
     """
 
+    @dataclasses.dataclass
+    class Quacker:
+
+        default_sound: str
+        sound_db: SoundDB
+        temp_dir: str
+
+        def on_key_press(self, key: pynput.keyboard.KeyCode) -> None:
+            """A keyboard key has been pressed."""
+            quack = f"{self.default_sound}_{key!s}"
+            if quack not in self.sound_db:
+                quack = self.default_sound
+            play(sound=quack, sound_db=self.sound_db, temp_dir=self.temp_dir)
+
+        def run(self):
+            with pynput.keyboard.Listener(on_press=self.on_key_press) as listener:
+                listener.join()
+
     if version:
         show_version()
         sys.exit(0)
@@ -86,13 +105,8 @@ def main(list_only=False, sound='', version=False) -> None:
         sys.exit(1)
 
     with tempfile.TemporaryDirectory() as temp_dir:
-        with pynput.keyboard.Listener(on_press=on_key_press) as listener:
-            listener.join()
-
-
-def on_key_press(key: pynput.keyboard.KeyCode) -> None:
-    """A keyboard key has been pressed."""
-    print(f"You pressed {key=}.")
+        quacker = Quacker(default_sound=sound, sound_db=base_sounds, temp_dir=temp_dir)
+        quacker.run()
 
 
 def play(sound: str, sound_db: SoundDB, temp_dir: str) -> None:
