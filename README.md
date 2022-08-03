@@ -8,6 +8,12 @@ Sounds are picked from https://archive.org/.
 * Quack sound: https://archive.org/details/quacksoundeffect
 
 
+## Prerequisite
+
+This program uses ffplay or avplay to play sounds. Please have one of those 
+installed.
+
+
 ## Notable guidelines
 
 * How (not) to write git commit messages: https://www.codelord.net/2015/03/16/bad-commit-messages-hall-of-shame/

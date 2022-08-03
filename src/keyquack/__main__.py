@@ -14,16 +14,21 @@
 
 import os
 import pathlib
+import subprocess
 import sys
-from typing import Dict, Set
+import tempfile
+from typing import Dict, Optional, Set, Tuple
 
 import click
 import pydub
 import pydub.exceptions
 import pydub.playback
+import pydub.utils
 
 
 DEFAULT_SOUND: str = 'quack'
+
+SoundDB = Dict[str, Tuple[pydub.AudioSegment, Optional[str]]]
 
 
 def show_version(ctx, param, value):
@@ -38,13 +43,13 @@ def show_version(ctx, param, value):
     ctx.exit()
 
 
-def load_base_sounds() -> Dict[str, pydub.AudioSegment]:
+def load_base_sounds() -> SoundDB:
     """Loads all base sounds.
 
-    :return:    Dictionary of sound name to sound audio segment.
+    :return:    Dictionary of sound name to (sound audio segment, temp. WAV file path).
     """
 
-    res = {}
+    res: SoundDB = {}
 
     paths = search_paths()
     for path in paths:
@@ -55,7 +60,7 @@ def load_base_sounds() -> Dict[str, pydub.AudioSegment]:
                     sound = pydub.AudioSegment.from_file(sound_file)
                     sound_name = pathlib.Path(dirpath) / pathlib.Path(filename).stem
                     sound_name = pathlib.Path(sound_name).relative_to(path)
-                    res[str(sound_name)] = sound
+                    res[str(sound_name)] = (sound, None)
 
                 except pydub.exceptions.CouldntDecodeError:
                     sys.stderr.write(f"Failed to load: {sound_file}.")
@@ -84,6 +89,7 @@ def main(list_only=False, sound='', version=False) -> None:
         print('Available sounds:')
         for sound_name in base_sounds:
             print(sound_name)
+        sys.exit(0)
 
     if sound not in base_sounds:
         sys.stderr.write(f"Cannot find sound '{sound}' in base sounds.\n")
@@ -91,7 +97,41 @@ def main(list_only=False, sound='', version=False) -> None:
         sys.stderr.write('Please specify alternative with --sound option.\n')
         sys.exit(1)
 
-    pydub.playback.play(base_sounds[sound])
+    with tempfile.TemporaryDirectory() as temp_dir:
+        play(sound=sound, sound_db=base_sounds, temp_dir=temp_dir)
+
+
+def play(sound: str, sound_db: SoundDB, temp_dir: str) -> None:
+    """Plays the given audio file.
+
+    :param sound:           The sound to play.
+    :param sound_db:        The sound database play.
+    :param temp_dir:        Path to temporary directory.
+    """
+    if sound not in sound_db:
+        raise RuntimeError(f"Sound '{sound}' not found in sound database.")
+
+    if sound_db[sound][1] is None:
+        save_wav(sound=sound, sound_db=sound_db, temp_dir=temp_dir)
+
+    player = pydub.utils.get_player_name()
+    subprocess.call([player, "-nodisp", "-autoexit", "-hide_banner", sound_db[sound][1]])
+
+
+def save_wav(sound: str, sound_db: SoundDB, temp_dir: str) -> None:
+    """Produces a WAV file of the given sound and stores it in the temporary directory.
+
+    :param sound:           The sound to play.
+    :param sound_db:        The sound database play.
+    :param temp_dir:        Path to temporary directory.
+    """
+
+    if sound not in sound_db:
+        raise RuntimeError(f"Sound '{sound}' not found in sound database.")
+
+    wav_file_name = os.path.join(temp_dir, f"{sound}.wav")
+    sound_db[sound][0].export(wav_file_name, "wav")
+    sound_db[sound] = (sound_db[sound][0], wav_file_name)
 
 
 def search_paths() -> Set[str]:
