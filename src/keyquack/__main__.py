@@ -31,18 +31,6 @@ DEFAULT_SOUND: str = 'quack'
 SoundDB = Dict[str, Tuple[pydub.AudioSegment, Optional[str]]]
 
 
-def show_version(ctx, param, value):
-
-    if not value or ctx.resilient_parsing:
-        return
-
-    import keyquack.__about__
-    click.echo(f"{keyquack.__about__.__title__} V{keyquack.__about__.__version__}")
-    click.echo(keyquack.__about__.__author__)
-    click.echo(keyquack.__about__.__uri__)
-    ctx.exit()
-
-
 def load_base_sounds() -> SoundDB:
     """Loads all base sounds.
 
@@ -157,6 +145,16 @@ def search_paths() -> Set[str]:
             res.add(os.path.join(folder, keyquack_sounds))
 
     return res
+
+
+def show_version():
+    """Show proram version and exit."""
+    import keyquack.__about__
+    click.echo(f"{keyquack.__about__.__title__} V{keyquack.__about__.__version__}")
+    click.echo(f"{keyquack.__about__.__summary__}\n")
+    click.echo(f"{keyquack.__about__.__author__}, {keyquack.__about__.__email__}")
+    click.echo(keyquack.__about__.__uri__)
+    sys.exit()
 
 
 def speed_change(sound: pydub.AudioSegment, speed: float = 1.0) -> pydub.AudioSegment:
