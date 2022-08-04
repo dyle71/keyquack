@@ -67,7 +67,9 @@ def distribute_sounds(sound: str, sound_db: SoundDB, temp_dir: str) -> None:
     :param sound_db:    The sound database.
     :param temp_dir:    The temporary folder to hold the sound files.
     """
+
     speed_ups = np.linspace(0.70, 2.0, num=len(LISTENING_KEYS))
+
     for i, speed_up in enumerate(speed_ups):
 
         key = LISTENING_KEYS[i]
@@ -79,6 +81,8 @@ def distribute_sounds(sound: str, sound_db: SoundDB, temp_dir: str) -> None:
         quack_sound = speed_change(sound_db[sound][0], speed_up)
         sound_db[quack] = (quack_sound, None)
         save_wav(sound=quack, sound_db=sound_db, temp_dir=temp_dir)
+
+    print('Sound file frequencies distributed.')
 
 
 def load_base_sounds() -> SoundDB:
