@@ -12,8 +12,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Feature complete, initial release.
 
 
-[Unreleased]: https://www.github.com/dyle71/keyquack/-/tree/develop
-[1.0.0]: https://www.github.com/dyle71/keyquack/-/releases/v1.0.0
+[Unreleased]: https://www.gitlab.com/dyle71/keyquack/-/tree/develop
+[1.0.0]: https://www.gitlab.com/dyle71/keyquack/-/releases/v1.0.0
 
 
 ---
