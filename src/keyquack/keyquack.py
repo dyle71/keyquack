@@ -93,6 +93,7 @@ def load_base_sounds() -> SoundDB:
     for path in paths:
         for dirpath, dirnames, filenames in os.walk(path):
             for filename in filenames:
+
                 sound_file = os.path.join(dirpath, filename)
                 try:
                     sound = pydub.AudioSegment.from_file(sound_file)
@@ -101,7 +102,7 @@ def load_base_sounds() -> SoundDB:
                     res[str(sound_name)] = (sound, None)
 
                 except pydub.exceptions.CouldntDecodeError:
-                    sys.stderr.write(f"Failed to load: {sound_file}.")
+                    pass
 
     return res
 
