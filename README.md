@@ -87,7 +87,7 @@ You may open up and editor (e.g. Winword?) in front and work there.
 ### More fun
 
 * Use `--distribute` to distribute the frequency of the sound across the keyboard.
-* Use `--sound muh` to switch to cows instead of ducks.
+* Use `--sound moo` to switch to cows instead of ducks.
 * Use `--list-only` to see what sounds are currently available.
 
 
