@@ -18,5 +18,5 @@ __copyright__ = '(C) Copyright 2022, Oliver Maurhart, headcode.space'
 __license__ = 'MIT'
 __title__ = 'Keyquack'
 __summary__ = """Keyquack - annoy your colleagues while typing."""
-__version__ = '0.1.0'
+__version__ = '1.0.0'
 __uri__ = 'https://gitlab.com/dyle71/keyquack'

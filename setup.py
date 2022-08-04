@@ -20,7 +20,7 @@ def requirements():
 
 setup(
     name='keyquack',
-    version='0.1.0',
+    version='1.0.0',
     description='Annoy your colleagues.',
     long_description='Annoy your colleagues in the office by making stupid '
                      'sounds at the keyboard while typing.',
